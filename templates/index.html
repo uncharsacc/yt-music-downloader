@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Music Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-8 flex items-center justify-center gap-2">
+            <i class="fa-brands fa-youtube text-red-500"></i>
+            YT Music Downloader
+        </h1>
+        
+        <div class="bg-zinc-900 rounded-2xl p-6 shadow-xl">
+            <input id="url" type="text" placeholder="Pega el link de YouTube aquí" 
+                   class="w-full bg-zinc-800 text-white rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-red-500">
+            
+            <button onclick="getInfo()" 
+                    class="mt-4 w-full bg-red-600 hover:bg-red-700 py-4 rounded-xl font-semibold text-lg transition">
+                <i class="fa-solid fa-magnifying-glass mr-2"></i>
+                Ver información y descargar
+            </button>
+            
+            <div id="preview" class="hidden mt-6">
+                <div class="flex gap-4 items-center bg-zinc-800 rounded-xl p-4">
+                    <img id="thumbnail" src="" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h3 id="title" class="font-semibold line-clamp-2"></h3>
+                        <p id="uploader" class="text-zinc-400 text-sm"></p>
+                        <p id="duration" class="text-emerald-400 text-sm font-medium"></p>
+                    </div>
+                </div>
+                
+                <form action="/download" method="POST" class="mt-6">
+                    <input type="hidden" name="url" id="hidden_url">
+                    <button type="submit" 
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-download"></i>
+                        DESCARGAR AUDIO (M4A - Alta calidad)
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <p class="text-center text-zinc-500 text-xs mt-8">Solo uso personal • Respeta derechos de autor</p>
+    </div>
+
+    <script>
+        async function getInfo() {
+            const url = document.getElementById('url').value.trim();
+            if (!url) return alert('Pega un link de YouTube');
+            
+            const btn = document.querySelector('button');
+            btn.innerHTML = 'Cargando...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/info', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({url})
+                });
+                const data = await res.json();
+                
+                document.getElementById('title').textContent = data.title;
+                document.getElementById('uploader').textContent = data.uploader;
+                document.getElementById('duration').innerHTML = `⏱️ ${data.duration} minutos`;
+                document.getElementById('thumbnail').src = data.thumbnail;
+                document.getElementById('hidden_url').value = url;
+                document.getElementById('preview').classList.remove('hidden');
+            } catch(e) {
+                alert('Error al obtener info. Revisa el link.');
+            }
+            
+            btn.innerHTML = `<i class="fa-solid fa-magnifying-glass mr-2"></i>Ver información y descargar`;
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
