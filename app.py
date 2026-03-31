@@ -6,9 +6,6 @@ import shutil
 
 app = Flask(__name__)
 
-# Ruta del archivo de cookies (lo crearemos después)
-COOKIES_PATH = "cookies.txt"
-
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -24,8 +21,10 @@ def get_info():
         'no_warnings': True,
         'noplaylist': True,
         'socket_timeout': 30,
-        'retries': 5,
-        'cookiefile': COOKIES_PATH if os.path.exists(COOKIES_PATH) else None,
+        'retries': 10,
+        # Trucos anti-bot sin cookies
+        'extractor_args': {'youtube': {'player_client': ['ios', 'android', 'web_embedded']}},
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     }
 
     try:
@@ -33,19 +32,16 @@ def get_info():
             info = ydl.extract_info(url, download=False)
 
         duration = info.get('duration', 0) or 0
-        minutes = int(duration // 60)
-        seconds = int(duration % 60)
-
         return jsonify({
             'title': info.get('title', 'Sin título'),
             'uploader': info.get('uploader', 'Desconocido'),
-            'duration': f"{minutes}:{seconds:02d}",
+            'duration': f"{duration//60}:{duration%60:02d}",
             'thumbnail': info.get('thumbnail'),
             'success': True
         })
     except Exception as e:
         print("Error /info:", str(e))
-        return jsonify({'error': 'YouTube bloqueó la petición. Usa cookies (ver abajo)'}), 500
+        return jsonify({'error': 'YouTube bloqueó el servidor. Prueba con cookies o otro link'}), 500
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -63,18 +59,18 @@ def download():
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '192',   # Calidad buena (128-320)
+            'preferredquality': '192',
         }],
-        'socket_timeout': 60,
-        'retries': 5,
-        'cookiefile': COOKIES_PATH if os.path.exists(COOKIES_PATH) else None,
+        'socket_timeout': 90,
+        'retries': 10,
+        'extractor_args': {'youtube': {'player_client': ['ios', 'android', 'web_embedded']}},
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'restrictfilenames': True,
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            # yt-dlp con postprocessor genera .mp3
             file_path = ydl.prepare_filename(info).rsplit('.', 1)[0] + '.mp3'
 
         @after_this_request
