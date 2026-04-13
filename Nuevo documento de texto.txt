@@ -1,1 +1,12 @@
 yt-dlp -x --audio-format mp3 -o "%(playlist_index)s - %(title)s.%(ext)s" "URL"
+
+yt-dlp -x --audio-format mp3 -o "C:\Users\catalina\Documents\musica\Coros Unidos\%(playlist_index)s - %(title)s.%(ext)s" "https://youtube.com/playlist?list=PLdIsD2ADU2jNBgTvYP4Lkyg3iJULs53qa&si=OgHLhIigz2tzwgOu"
+
+
+
+yt-dlp -x --audio-format mp3 -o "C:\Users\catalina\Documents\musica\Los hermanos Alvarados\%(playlist_index)s - %(title)s.%(ext)s" "https://youtube.com/playlist?list=PL7X0khrqwodau3OV0u0eoWMO0lwMd-dwl&si=ie6wxGu-3HTLdwWn"
+
+
+
+
+yt-dlp -x --audio-format mp3 -o "C:\Users\catalina\Documents\musica\coros antiguos\%(playlist_index)s - %(title)s.%(ext)s" "https://youtube.com/playlist?list=PLoNhxcJCSdZQ9RUQLdI8DuZVX4YUZsa6X&si=frqHBxXvxTa_TUKt"
